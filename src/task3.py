@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, count, round as spark_round
+from pyspark.sql.functions import col, count
 
-def initialize_spark(app_name="Task1_Binge_Watching_Patterns"):
+def initialize_spark(app_name="Task3_Trend_Analysis"):
     """
     Initialize and return a SparkSession.
     """
@@ -22,17 +22,20 @@ def load_data(spark, file_path):
     df = spark.read.csv(file_path, header=True, schema=schema)
     return df
 
-def detect_binge_watching_patterns(df):
+def analyze_movie_watching_trends(df):
     """
-    Identify the percentage of users in each age group who binge-watch movies.
+    Analyze trends in movie watching over the years.
 
     TODO: Implement the following steps:
-    1. Filter users who have `IsBingeWatched = True`.
-    2. Group by `AgeGroup` and count the number of binge-watchers.
-    3. Count the total number of users in each age group.
-    4. Calculate the binge-watching percentage for each age group.
+    1. Group by WatchedYear and count the number of movies watched.
+    2. Order the results by WatchedYear to identify trends.
     """
-    pass  # Remove this line after implementation
+    trend_df = df.groupBy("WatchedYear").agg(count("MovieID").alias("Movies Watched"))
+    
+    # Order by WatchedYear to identify trends and peak years
+    result_df = trend_df.orderBy("WatchedYear")
+    
+    return result_df
 
 def write_output(result_df, output_path):
     """
@@ -42,15 +45,15 @@ def write_output(result_df, output_path):
 
 def main():
     """
-    Main function to execute Task 1.
+    Main function to execute Task 3.
     """
     spark = initialize_spark()
 
-    input_file = "/workspaces/MovieRatingsAnalysis/input/movie_ratings_data.csv"
-    output_file = "/workspaces/MovieRatingsAnalysis/outputs/binge_watching_patterns.csv"
+    input_file = "/workspaces/handson-7-spark-structured-api-movie-ratings-analysis-Likithakode/input/movie_ratings_data.csv"
+    output_file = "/workspaces/handson-7-spark-structured-api-movie-ratings-analysis-Likithakode/Outputs/movie_watching_trends.csv"
 
     df = load_data(spark, input_file)
-    result_df = detect_binge_watching_patterns(df)  # Call function here
+    result_df = analyze_movie_watching_trends(df)  # Call function here
     write_output(result_df, output_file)
 
     spark.stop()
